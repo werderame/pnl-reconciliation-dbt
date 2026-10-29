@@ -1,0 +1,106 @@
+name: pnl_reconciliation
+version: 1.0.0
+config-version: 2
+profile: pnl_reconciliation
+model-paths:
+- models
+seed-paths:
+- seeds
+test-paths:
+- tests
+macro-paths:
+- macros
+analysis-paths:
+- analyses
+clean-targets:
+- target
+- dbt_packages
+models:
+  pnl_reconciliation:
+    +materialized: view
+    staging:
+      +tags:
+      - synthetic_interface
+    intermediate:
+      +tags:
+      - adapted_export
+    marts:
+      +tags:
+      - portfolio_extension
+    audit:
+      +tags:
+      - portfolio_extension
+      - audit
+seeds:
+  pnl_reconciliation:
+    seed_customer_orders:
+      +column_types:
+        order_number: varchar
+        opportunity_id: varchar
+        is_customer_in_revenue: varchar
+        opportunity_stage: varchar
+    seed_opportunities:
+      +column_types:
+        opportunity_id: varchar
+        modules: varchar
+        is_deleted: varchar
+    seed_sales_product_lines:
+      +column_types:
+        opportunity_id: varchar
+        product_sku: varchar
+        opportunity_product_type: varchar
+        quantity: varchar
+        created_timestamp_cet: varchar
+    seed_fulfilment_cases:
+      +column_types:
+        opportunity_id: varchar
+        setup_monitoring_closed_timestamp_cet: varchar
+        installation_start_timestamp_cet: varchar
+    seed_bom_lines:
+      +column_types:
+        item_id: varchar
+        product_name: varchar
+        manufactured_item_number: varchar
+        bill_of_material_quantity: varchar
+        from_quantity: varchar
+        valid_from_date: varchar
+        valid_to_date: varchar
+    seed_warehouse_movements:
+      +column_types:
+        movement_id: varchar
+        helper_type: varchar
+        movement_date: varchar
+        installation_on_date: varchar
+        erp_from_warehouse: varchar
+        erp_transfer_order_type: varchar
+        transfer_order_status: varchar
+        erp_order_number: varchar
+        item_id: varchar
+        procurement_category: varchar
+        transfer_quantity: varchar
+        shipped_quantity: varchar
+        interface_quantity: varchar
+    seed_monthly_unit_costs:
+      +column_types:
+        item_id: varchar
+        year_month: varchar
+        wac_eur: varchar
+    seed_expected_components:
+      +column_types:
+        order_number: varchar
+        product_sku: varchar
+        item_id: varchar
+        product_category: varchar
+        expected_quantity: varchar
+    seed_actual_components:
+      +column_types:
+        order_number: varchar
+        item_id: varchar
+        procurement_category: varchar
+        outbound_transfer_quantity: varchar
+        inbound_transfer_quantity: varchar
+        net_transfer_quantity: varchar
+on-run-start:
+- '{{ bootstrap_demo_functions() }}'
+flags:
+  send_anonymous_usage_stats: false

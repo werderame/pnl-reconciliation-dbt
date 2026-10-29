@@ -1,0 +1,10 @@
+--- reference/export/int_pnl_expected_components.sql
++++ models/intermediate/pnl/int_pnl_expected_components.sql
+@@ -136,7 +136,7 @@
+ 
+         AND (
+ 
+-          bom.product_name ILIKE ANY ('end caps%', '%hook set%', '%connecting rail%', 'mechanical parts set%', '%mounting vendor%', 'rail set%', 'beaver%')
++          (bom.product_name ILIKE 'end caps%' OR bom.product_name ILIKE '%hook set%' OR bom.product_name ILIKE '%connecting rail%' OR bom.product_name ILIKE 'mechanical parts set%' OR bom.product_name ILIKE '%mounting vendor%' OR bom.product_name ILIKE 'rail set%' OR bom.product_name ILIKE 'beaver%')
+         )
+         AND NOT (

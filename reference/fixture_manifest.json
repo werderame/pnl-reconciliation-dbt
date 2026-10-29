@@ -1,0 +1,56 @@
+[
+  {
+    "file": "seeds/seed_customer_orders.csv",
+    "rows": 21,
+    "sha256": "ddc6edfe8a0dda17d1158cde669bf98c0cb6539c2e0a30dfcfc3084fd0bba9fd",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_opportunities.csv",
+    "rows": 21,
+    "sha256": "61ccabdd56dd4a64a15b4b12f6e68e0c1a869fe6e568ef0fe8e95bc32e8965cb",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_sales_product_lines.csv",
+    "rows": 28,
+    "sha256": "910efff7932d84533dce46711005c0130478c6b83bb7cd3dba39e4f976c5fca2",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_fulfilment_cases.csv",
+    "rows": 22,
+    "sha256": "731fe58d3c8e7b49699046c99ebeb962a42d82ca9a4ed15ad7e2ae81dfccb087",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_bom_lines.csv",
+    "rows": 19,
+    "sha256": "78730598041464f990df40534e958fac0df132ece3f8d20d8ba916653926c260",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_warehouse_movements.csv",
+    "rows": 30,
+    "sha256": "191315e3ae8bc6b598db488a28ae61580cdea5571dfa96a5a29652a6d8d5e5ea",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_monthly_unit_costs.csv",
+    "rows": 19,
+    "sha256": "5ee059bc4c72b81b4ac3f5fdcc4815511f45263e936a744eac3e297c95e1d7db",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_expected_components.csv",
+    "rows": 21,
+    "sha256": "1bc0e8616aa375c5a6e0e52c6d7ce4b25dd695f22d1b55d713f2ead4abfc8633",
+    "origin": "hand-authored synthetic scenario"
+  },
+  {
+    "file": "seeds/seed_actual_components.csv",
+    "rows": 22,
+    "sha256": "49e186611501e8ac835047e777de929e600e2dafe31a6a5689bb671478cffdad",
+    "origin": "hand-authored synthetic scenario"
+  }
+]

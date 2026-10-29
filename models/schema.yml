@@ -1,0 +1,712 @@
+version: 2
+models:
+- name: int_pnl_order_scope
+  description: Adapted export. Latest eligible monitoring case and latest promised product type; monitoring date,
+    not the revenue flag, is the observed scope discriminator.
+  columns:
+  - name: order_number
+    data_tests:
+    - not_null
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: opportunity_id
+    data_tests:
+    - not_null
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: monitoring_closed_date
+    data_tests:
+    - not_null
+    description: Selected monitoring-close date. Used for scope and non-mounting BOM selection, not proof of booked
+      revenue.
+  - name: product_sku
+    data_tests:
+    - not_null
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: quantity
+    data_tests:
+    - not_null
+    description: Sold product quantity before category-specific BOM conversion; never a universal component multiplier.
+  - name: opportunity_product_type
+    description: Commercial product-type text used for category mapping and latest-line partitioning.
+  - name: created_timestamp_cet
+    description: Promised-line timestamp. DENSE_RANK keeps equally latest rows per opportunity and product type.
+  data_tests:
+  - unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - order_number
+        - opportunity_id
+        - product_sku
+        - opportunity_product_type
+- name: int_pnl_product_rules
+  description: Adapted export. Product-category mapping, per-product mounting classification and category-specific
+    BOM effective date.
+  columns:
+  - name: order_number
+    data_tests:
+    - not_null
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: opportunity_id
+    data_tests:
+    - not_null
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: product_sku
+    data_tests:
+    - not_null
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: validity_date
+    data_tests:
+    - not_null
+    description: 'BOM selection date: latest installation start for mounting; selected monitoring-close date otherwise.'
+  - name: product_category
+    data_tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values: &id001
+          - AC Box
+          - Battery
+          - Inverter
+          - Mounting Structure
+          - PV Module
+          - Wallbox
+          - Back-up
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: category_secondary
+    description: PV mounting subtype determined by the exported SKU priority CASE at its actual per-product grouping.
+  - name: quantity
+    description: Sold product quantity before category-specific BOM conversion; never a universal component multiplier.
+  - name: monitoring_closed_date
+    description: Selected monitoring-close date. Used for scope and non-mounting BOM selection, not proof of booked
+      revenue.
+  data_tests:
+  - unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - order_number
+        - opportunity_id
+        - product_sku
+        - product_category
+- name: int_pnl_expected_components
+  description: Adapted export. Four BOM matching/quantity branches. No arbitrary coefficient multiplication.
+  columns:
+  - name: order_number
+    data_tests:
+    - not_null
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: opportunity_id
+    data_tests:
+    - not_null
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: product_sku
+    data_tests:
+    - not_null
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: item_id
+    data_tests:
+    - not_null
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: validity_date
+    data_tests:
+    - not_null
+    description: 'BOM selection date: latest installation start for mounting; selected monitoring-close date otherwise.'
+  - name: expected_quantity
+    data_tests:
+    - not_null
+    description: Physical component quantity resulting from the applicable BOM mechanism.
+  - name: product_category
+    data_tests:
+    - accepted_values:
+        arguments:
+          values: *id001
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: category_secondary
+    description: PV mounting subtype determined by the exported SKU priority CASE at its actual per-product grouping.
+  data_tests:
+  - unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - order_number
+        - opportunity_id
+        - product_sku
+        - item_id
+        - product_category
+        - category_secondary
+        - validity_date
+- name: int_pnl_actual_components
+  description: Adapted export. Global order and component scopes; transfer quantity first, shipped quantity second;
+    returns reduce outbound.
+  columns:
+  - name: order_number
+    data_tests:
+    - not_null
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: item_id
+    data_tests:
+    - not_null
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: procurement_category
+    data_tests:
+    - not_null
+    description: Warehouse category, with Charger mapped to Wallbox and Backup Switch mapped to Back-up in the calculation.
+  - name: net_transfer_quantity
+    data_tests:
+    - not_null
+    description: Outbound minus inbound at order/component/normalised-category grain.
+  - name: outbound_transfer_quantity
+    description: Sum of authoritative movement quantities on non-return directions.
+  - name: inbound_transfer_quantity
+    description: Sum of authoritative Return Inbound quantities, subtracted from outbound.
+  data_tests:
+  - unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - order_number
+        - item_id
+        - procurement_category
+- name: int_pnl_cost_ledger
+  description: Adapted export. Side-labelled ledger with mixed detail; order-latest BOM month, MAX WAC and zero
+    fallback preserved. This is component cost variance, not total P&L.
+  columns:
+  - name: side_type
+    data_tests:
+    - accepted_values:
+        arguments:
+          values:
+          - expected
+          - actual
+    description: Expected or actual ledger side. The sides have different natural detail before shared-grain aggregation.
+  - name: order_number
+    data_tests:
+    - not_null
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: item_id
+    data_tests:
+    - not_null
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: year_month
+    data_tests:
+    - not_null
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: week_number
+    data_tests:
+    - not_null
+    description: Preserved legacy calendar-year plus week label; not an ISO year/week key at year boundaries.
+  - name: product_sku
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: category_secondary
+    description: PV mounting subtype determined by the exported SKU priority CASE at its actual per-product grouping.
+  - name: expected_quantity
+    description: Physical component quantity resulting from the applicable BOM mechanism.
+  - name: outbound_transfer_quantity
+    description: Sum of authoritative movement quantities on non-return directions.
+  - name: inbound_transfer_quantity
+    description: Sum of authoritative Return Inbound quantities, subtracted from outbound.
+  - name: net_transfer_quantity
+    description: Outbound minus inbound at order/component/normalised-category grain.
+  - name: status_map
+    description: Legacy order/category quantity status, excluding mounting. Equal totals can hide component substitutions.
+  - name: match_wac_eur
+    description: Exported MAX matched monthly WAC, rounded to two decimals; missing WAC defaults to zero by agreed
+      convention.
+  - name: expected_cost
+    description: Exported expected quantity times rounded matched WAC, including the agreed missing-WAC zero convention.
+  - name: actual_cost
+    description: Exported net actual quantity times rounded matched WAC, including the agreed missing-WAC zero convention.
+  - name: pnl
+    description: Exported expected component cost minus actual component cost; not total company P&L or gross margin.
+- name: dim_reconciliation_order
+  description: 'Portfolio extension: conformed dimension for the public dimensional serving layer.'
+  columns:
+  - name: order_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic surrogate key for the natural ERP order. A modelling key, not anonymisation.
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: opportunity_id
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: monitoring_closed_date
+    description: Selected monitoring-close date. Used for scope and non-mounting BOM selection, not proof of booked
+      revenue.
+- name: dim_component
+  description: 'Portfolio extension: conformed dimension for the public dimensional serving layer.'
+  columns:
+  - name: component_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic surrogate key for the physical item.
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: component_name
+    description: Illustrative minimum available BOM label per item; not an authoritative enterprise item master.
+- name: dim_sold_product
+  description: 'Portfolio extension: conformed dimension for the public dimensional serving layer.'
+  columns:
+  - name: sold_product_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic surrogate key for the sold SKU; only expected facts have this attribution.
+  - name: product_sku
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: category_secondary
+    description: PV mounting subtype determined by the exported SKU priority CASE at its actual per-product grouping.
+- name: dim_valuation_period
+  description: 'Portfolio extension: conformed dimension for the public dimensional serving layer.'
+  columns:
+  - name: valuation_period_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic surrogate key for the order-derived valuation month.
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: month_start_date
+    description: First day of the order-derived valuation month; not a shipment date.
+- name: fct_expected_component_cost
+  description: Portfolio extension. Expected fact retains sold-product detail; actual fact has no sold-product attribution.
+    Report costs retain the agreed zero-for-missing-WAC convention. Additional priced_* measures and cost_status
+    disclose pricing coverage.
+  columns:
+  - name: component_cost_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic key at this fact table natural grain; expected and actual grains differ.
+  - name: order_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_reconciliation_order')
+          field: order_key
+    description: Deterministic surrogate key for the natural ERP order. A modelling key, not anonymisation.
+  - name: component_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_component')
+          field: component_key
+    description: Deterministic surrogate key for the physical item.
+  - name: valuation_period_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_valuation_period')
+          field: valuation_period_key
+    description: Deterministic surrogate key for the order-derived valuation month.
+  - name: sold_product_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_sold_product')
+          field: sold_product_key
+    description: Deterministic surrogate key for the sold SKU; only expected facts have this attribution.
+  - name: cost_status
+    data_tests:
+    - accepted_values:
+        arguments:
+          values:
+          - priced
+          - missing
+          - ambiguous
+    description: priced = exactly one non-null source price; missing = no price; ambiguous = duplicate source rows.
+  - name: product_sku
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: expected_quantity
+    description: Physical component quantity resulting from the applicable BOM mechanism.
+  - name: unit_cost_eur
+    description: 'Additional pricing-coverage field: rounded WAC only when exactly one non-null item/month source
+      row exists.'
+  - name: expected_cost_eur
+    description: Report expected component cost in EUR, preserving the agreed zero-for-missing-WAC convention.
+  - name: priced_expected_cost_eur
+    description: Additional expected cost available only for a uniquely priced source item/month; otherwise null.
+- name: fct_actual_component_cost
+  description: Portfolio extension. Expected fact retains sold-product detail; actual fact has no sold-product attribution.
+    Report costs retain the agreed zero-for-missing-WAC convention. Additional priced_* measures and cost_status
+    disclose pricing coverage.
+  columns:
+  - name: component_cost_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic key at this fact table natural grain; expected and actual grains differ.
+  - name: order_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_reconciliation_order')
+          field: order_key
+    description: Deterministic surrogate key for the natural ERP order. A modelling key, not anonymisation.
+  - name: component_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_component')
+          field: component_key
+    description: Deterministic surrogate key for the physical item.
+  - name: valuation_period_key
+    data_tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_valuation_period')
+          field: valuation_period_key
+    description: Deterministic surrogate key for the order-derived valuation month.
+  - name: cost_status
+    data_tests:
+    - accepted_values:
+        arguments:
+          values:
+          - priced
+          - missing
+          - ambiguous
+    description: priced = exactly one non-null source price; missing = no price; ambiguous = duplicate source rows.
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: outbound_transfer_quantity
+    description: Sum of authoritative movement quantities on non-return directions.
+  - name: inbound_transfer_quantity
+    description: Sum of authoritative Return Inbound quantities, subtracted from outbound.
+  - name: net_transfer_quantity
+    description: Outbound minus inbound at order/component/normalised-category grain.
+  - name: unit_cost_eur
+    description: 'Additional pricing-coverage field: rounded WAC only when exactly one non-null item/month source
+      row exists.'
+  - name: actual_cost_eur
+    description: Report net actual component cost in EUR, preserving the agreed zero-for-missing-WAC convention.
+  - name: priced_actual_cost_eur
+    description: Additional actual cost available only for a uniquely priced source item/month; otherwise null.
+- name: mart_component_reconciliation
+  description: Portfolio extension. One row per order x component x category x valuation month. Facts aggregate
+    independently before comparison.
+  columns:
+  - name: reconciliation_key
+    data_tests:
+    - unique
+    - not_null
+    description: Deterministic key for order/component/category/valuation month.
+  - name: quantity_variance
+    data_tests:
+    - not_null
+    description: Expected component units minus net actual units. Positive means under-delivery at this grain.
+  - name: reconciliation_presence
+    data_tests:
+    - accepted_values:
+        arguments:
+          values:
+          - both
+          - expected_only
+          - actual_only
+    description: both, expected_only or actual_only after independent aggregation and full outer comparison.
+  - name: order_key
+    description: Deterministic surrogate key for the natural ERP order. A modelling key, not anonymisation.
+  - name: component_key
+    description: Deterministic surrogate key for the physical item.
+  - name: valuation_period_key
+    description: Deterministic surrogate key for the order-derived valuation month.
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: expected_quantity
+    description: Physical component quantity resulting from the applicable BOM mechanism.
+  - name: outbound_quantity
+    description: Outbound movement quantity at the shared reconciliation grain.
+  - name: returned_quantity
+    description: Inbound return quantity at the shared reconciliation grain.
+  - name: net_actual_quantity
+    description: Outbound minus returned quantity; actual side is not allocated to sold products.
+  - name: unpriced_rows
+    description: Count of expected and actual fact rows lacking a unique non-null price. Not a percentage of raw-source
+      completeness.
+  - name: expected_cost_eur
+    description: Report expected component cost in EUR, preserving the agreed zero-for-missing-WAC convention.
+  - name: actual_cost_eur
+    description: Report net actual component cost in EUR, preserving the agreed zero-for-missing-WAC convention.
+  - name: cost_variance_eur
+    description: Report expected minus actual component cost in EUR. Read with quantity and pricing-coverage fields.
+  - name: fully_priced_expected_cost_eur
+    description: Additional expected-side measure, unavailable if included expected fact rows lack a unique WAC.
+  - name: fully_priced_actual_cost_eur
+    description: Additional actual-side measure, unavailable if included actual fact rows lack a unique WAC.
+  - name: fully_priced_cost_variance_eur
+    description: Additional variance available only when all included expected and actual rows are uniquely priced.
+  - name: component_quantity_status
+    description: Equal, undership or overship determined at order/component/category/month grain.
+  data_tests:
+  - unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - order_number
+        - item_id
+        - product_category
+        - year_month
+- name: mart_cost_variance_summary
+  description: Portfolio extension. Monthly/category currency totals preserve the agreed zero-for-missing-WAC report
+    convention. Separate fully_priced_* measures are withheld when included rows lack a unique price. Quantities
+    across component types are not summed.
+  columns:
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: compared_components
+    description: Number of shared-grain comparison rows in the month/category group.
+  - name: unpriced_rows
+    description: Count of expected and actual fact rows lacking a unique non-null price. Not a percentage of raw-source
+      completeness.
+  - name: expected_cost_eur
+    description: Report expected component cost in EUR, preserving the agreed zero-for-missing-WAC convention.
+  - name: actual_cost_eur
+    description: Report net actual component cost in EUR, preserving the agreed zero-for-missing-WAC convention.
+  - name: cost_variance_eur
+    description: Report expected minus actual component cost in EUR. Read with quantity and pricing-coverage fields.
+  - name: known_expected_cost_subtotal_eur
+    description: Subtotal of available pricing-complete expected costs. Not a complete-source coverage claim.
+  - name: known_actual_cost_subtotal_eur
+    description: Subtotal of available pricing-complete actual costs. Not a complete-source coverage claim.
+  - name: fully_priced_expected_cost_eur
+    description: Additional expected-side measure, unavailable if included expected fact rows lack a unique WAC.
+  - name: fully_priced_actual_cost_eur
+    description: Additional actual-side measure, unavailable if included actual fact rows lack a unique WAC.
+  - name: fully_priced_cost_variance_eur
+    description: Additional variance available only when all included expected and actual rows are uniquely priced.
+  - name: components_with_quantity_variance
+    description: Number of comparison rows with expected quantity different from net actual quantity.
+  data_tests:
+  - unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - year_month
+        - product_category
+- name: audit_excluded_movements
+  description: Portfolio addition. First-match exclusion reasons for movements, including actuals lost at the final
+    order/BOM join.
+  columns:
+  - name: movement_id
+    description: Synthetic audit identifier added to reconstruct row-level exclusion explanations.
+  - name: helper_type
+    description: Movement direction label. Return Inbound is subtracted; other non-null labels are outbound.
+  - name: movement_date
+    description: Movement date retained for traceability; not the valuation-month selector in this calculation.
+  - name: installation_on_date
+    description: Warehouse interface date retained for traceability; not substituted for BOM selection dates.
+  - name: erp_from_warehouse
+    description: Warehouse interface attribute, not a filter in these five models.
+  - name: erp_transfer_order_type
+    description: Transfer type. Case-sensitive Retro matches and null types are excluded by the exported predicate.
+  - name: transfer_order_status
+    description: Interface attribute retained for inspection; no additional status filter is invented.
+  - name: erp_order_number
+    description: Warehouse-side ERP order identifier used to link movements to eligible orders.
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: procurement_category
+    description: Warehouse category, with Charger mapped to Wallbox and Backup Switch mapped to Back-up in the calculation.
+  - name: transfer_quantity
+    description: Finance-preferred quantity. A non-null zero takes precedence over shipped quantity.
+  - name: shipped_quantity
+    description: Fallback quantity used only when transfer_quantity is null.
+  - name: interface_quantity
+    description: Synthetic contrast field demonstrating that the exported quantity rule does not consult it.
+  - name: exclusion_reason
+    description: First matched explanation for why a movement is excluded by the supplied stages; not a complete
+      source-system audit.
+- name: audit_multiple_mounting_types
+  description: Portfolio addition. Observability for orders with several per-product mounting classifications; no
+    replacement priority algorithm.
+  columns:
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: mounting_types
+    description: Number of distinct observed mounting subtypes on an order. Multiple types are surfaced, not automatically
+      rejected.
+  - name: observed_types
+    description: List of observed mounting subtypes for a reviewer to inspect.
+- name: audit_unmatched_sold_products
+  description: Portfolio addition. Classified products without expected components after effective-date, name and
+    threshold matching.
+  columns:
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: opportunity_id
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: product_sku
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: product_category
+    description: Controlled category derived from commercial type or normalised warehouse procurement category.
+  - name: category_secondary
+    description: PV mounting subtype determined by the exported SKU priority CASE at its actual per-product grouping.
+  - name: quantity
+    description: Sold product quantity before category-specific BOM conversion; never a universal component multiplier.
+  - name: monitoring_closed_date
+    description: Selected monitoring-close date. Used for scope and non-mounting BOM selection, not proof of booked
+      revenue.
+  - name: validity_date
+    description: 'BOM selection date: latest installation start for mounting; selected monitoring-close date otherwise.'
+- name: int_pnl_unit_cost_quality
+  description: Portfolio addition. One row per item/month classifying missing, unique and duplicate prices independently
+    of the report zero convention.
+  columns:
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: source_row_count
+    description: Number of source WAC rows at item/month grain, including null-valued prices.
+  - name: priced_row_count
+    description: Number of non-null WAC values at item/month grain.
+  - name: distinct_price_count
+    description: Distinct non-null WAC values; duplicates remain invalid even if values agree.
+  - name: cost_status
+    description: priced = exactly one non-null source price; missing = no price; ambiguous = duplicate source rows.
+  - name: unit_cost_eur
+    description: 'Additional pricing-coverage field: rounded WAC only when exactly one non-null item/month source
+      row exists.'
+- name: stg_bom_lines
+  description: Reconstructed versioned BOM line interface. Manufactured SKU, physical component, threshold, coefficient
+    and validity interval.
+  columns:
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: product_name
+    description: BOM component name used by the exported primary-component and mounting filters.
+  - name: manufactured_item_number
+    description: Manufactured product whose BOM contains this physical component.
+  - name: bill_of_material_quantity
+    description: BOM component coefficient. Used directly, multiplied, or ignored according to the selected mechanism.
+  - name: from_quantity
+    description: 'BOM quantity threshold: exact module count for PV, upward-even matching for mounting.'
+  - name: valid_from_date
+    description: Inclusive BOM version start date.
+  - name: valid_to_date
+    description: Inclusive BOM version end date; 1900-01-01 is the source open-ended sentinel.
+- name: stg_customer_orders
+  description: Reconstructed source interface. Explicit types for order identity and scope attributes; no production
+    source logic is claimed.
+  columns:
+  - name: order_number
+    description: Natural ERP order identifier. Synthetic in this public demo.
+  - name: opportunity_id
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: is_customer_in_revenue
+    description: Loaded interface flag; deliberately not an eligibility predicate in the exported calculation.
+  - name: opportunity_stage
+    description: Loaded commercial stage; deliberately not an eligibility predicate in the exported calculation.
+- name: stg_fulfilment_cases
+  description: Reconstructed case interface. Keeps monitoring and installation timestamps as distinct business dates.
+  columns:
+  - name: opportunity_id
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: setup_monitoring_closed_timestamp_cet
+    description: Monitoring case close timestamp; latest qualifying case from 2024 onward determines scope.
+  - name: installation_start_timestamp_cet
+    description: Installation case timestamp used for mounting BOM selection.
+- name: stg_monthly_unit_costs
+  description: Reconstructed item/month WAC interface, with explicit numeric cost cast.
+  columns:
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: year_month
+    description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+      whole order.
+  - name: wac_eur
+    description: Source monthly weighted-average unit cost in EUR; uniqueness is required at item/month grain.
+- name: stg_opportunities
+  description: Reconstructed opportunity interface. Deletion scope and module-count matching fields.
+  columns:
+  - name: opportunity_id
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: modules
+    description: Opportunity-level module count used to match the PV BOM quantity threshold.
+  - name: is_deleted
+    description: Source deletion flag; deleted opportunities are excluded from order scope.
+- name: stg_sales_product_lines
+  description: Reconstructed commercial line interface. Explicit product identity, quantity and created timestamp.
+  columns:
+  - name: opportunity_id
+    description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+  - name: product_sku
+    description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+      rows.
+  - name: opportunity_product_type
+    description: Commercial product-type text used for category mapping and latest-line partitioning.
+  - name: quantity
+    description: Sold product quantity before category-specific BOM conversion; never a universal component multiplier.
+  - name: created_timestamp_cet
+    description: Promised-line timestamp. DENSE_RANK keeps equally latest rows per opportunity and product type.
+- name: stg_warehouse_movements
+  description: Reconstructed movement interface. Keeps transfer, shipped and interface quantities distinct; direction
+    drives returns.
+  columns:
+  - name: movement_id
+    description: Synthetic audit identifier added to reconstruct row-level exclusion explanations.
+  - name: helper_type
+    description: Movement direction label. Return Inbound is subtracted; other non-null labels are outbound.
+  - name: movement_date
+    description: Movement date retained for traceability; not the valuation-month selector in this calculation.
+  - name: installation_on_date
+    description: Warehouse interface date retained for traceability; not substituted for BOM selection dates.
+  - name: erp_from_warehouse
+    description: Warehouse interface attribute, not a filter in these five models.
+  - name: erp_transfer_order_type
+    description: Transfer type. Case-sensitive Retro matches and null types are excluded by the exported predicate.
+  - name: transfer_order_status
+    description: Interface attribute retained for inspection; no additional status filter is invented.
+  - name: erp_order_number
+    description: Warehouse-side ERP order identifier used to link movements to eligible orders.
+  - name: item_id
+    description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+  - name: procurement_category
+    description: Warehouse category, with Charger mapped to Wallbox and Backup Switch mapped to Back-up in the calculation.
+  - name: transfer_quantity
+    description: Finance-preferred quantity. A non-null zero takes precedence over shipped quantity.
+  - name: shipped_quantity
+    description: Fallback quantity used only when transfer_quantity is null.
+  - name: interface_quantity
+    description: Synthetic contrast field demonstrating that the exported quantity rule does not consult it.

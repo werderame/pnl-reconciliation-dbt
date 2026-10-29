@@ -1,0 +1,15 @@
+version: 2
+exposures:
+  - name: component_cost_reconciliation_review
+    type: analysis
+    maturity: low
+    label: Component cost reconciliation and data coverage review
+    description: Portfolio consumption contract for Finance and Operations. Not a historical production dashboard.
+    url: https://werderame.github.io/
+    depends_on:
+      - ref('mart_component_reconciliation')
+      - ref('mart_cost_variance_summary')
+      - ref('audit_unmatched_sold_products')
+      - ref('audit_excluded_movements')
+    owner:
+      name: Filippo Carraro

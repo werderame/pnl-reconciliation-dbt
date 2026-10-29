@@ -1,0 +1,23 @@
+order_number,item_id,procurement_category,outbound_transfer_quantity,inbound_transfer_quantity,net_transfer_quantity
+O_EQUAL,C_AC,AC Box,2,0,2
+O_RETURN,C_BAT_CELL,Battery,8,2,6
+O_RETURN,C_BAT_CABLE,Battery,4,0,4
+O_SHORT,C_PV,PV Module,2,0,2
+O_EXTRA,C_INV,Inverter,2,0,2
+O_SHARED,C_SHARED,Inverter,3,0,3
+O_MOUNT,C_HOOK,Mounting Structure,7,0,7
+O_MOUNT,C_RAIL,Mounting Structure,4,0,4
+O_MOUNT,C_CAP,Mounting Structure,6,0,6
+O_MOUNT,C_MECH,Mounting Structure,2,0,2
+O_MOUNT,C_INV,Inverter,1,0,1
+O_MISSING,C_CHARGER,Wallbox,1,0,1
+O_ZERO,C_ZERO,AC Box,1,0,1
+O_UNEXPECTED,C_AC,AC Box,1,0,1
+O_UNEXPECTED,C_INV,Inverter,1,0,1
+O_NO_BOM,C_AC,AC Box,1,0,1
+O_FLAG_FALSE,C_AC,AC Box,1,0,1
+O_SERVICE,C_AC,AC Box,9,0,9
+O_RECENT,C_INV,Inverter,1,0,1
+O_BOUND_OLD,C_BOUND_OLD,AC Box,1,0,1
+O_BOUND_NEW,C_BOUND_NEW,AC Box,1,0,1
+O_ZERO_TRANSFER,C_BACKUP,Back-up,0,0,0

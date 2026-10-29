@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: int_pnl_actual_components
+    meta:
+      owner:
+        name: Filippo Carraro
+        email: portfolio@example.invalid
+      domain: scm
+    description: |
+      Step 4 of P&L reconciliation: Aggregates warehouse movements (actuals) for in-scope customers and components.
+
+      Business Logic:
+      - Filters warehouse movements to customers from Step 1 (order_number in scope)
+      - Filters to components from Step 3 (item_id in scope)
+      - Filters to product categories from Step 3 (product_category in scope)
+      - Excludes retrofitting types of movement (erp_transfer_order_type NOT LIKE '%Retro%'). Only Sales in scope.
+      - Pivots movements by direction: outbound vs inbound (returns)
+      - Calculates net transfer quantity = outbound - inbound
+
+      Movement Types:
+      - Outbound: All movements except 'Return Inbound' (deliveries to customers)
+      - Inbound: 'Return Inbound' only (customer returns to warehouse)
+
+      Grain: order_number + item_id + procurement_category (one row per component per order per category)
+
+    columns:
+      - name: order_number
+        description: ERP customer order number (from Step 1)
+        data_tests:
+          - not_null
+      - name: item_id
+        description: |
+          ERP item ID from BOM explosion in Step 3.
+          The actual component that was transferred to/from warehouse.
+        data_tests:
+          - not_null
+      - name: procurement_category
+        description: |
+          Product category from warehouse movements (aligned with product_category in Step 2).
+      - name: outbound_transfer_quantity
+        description: |
+          Total quantity transferred OUT to customer (deliveries).
+          Sum of all movements where helper_type != 'Return Inbound'.
+          Represents actual components shipped to customer.
+      - name: inbound_transfer_quantity
+        description: |
+          Total quantity transferred IN from customer (returns).
+          Sum of all movements where helper_type = 'Return Inbound'.
+          Represents actual components returned by customer.
+      - name: net_transfer_quantity
+        description: |
+          Net quantity = outbound_transfer_quantity - inbound_transfer_quantity.
+          The actual net quantity delivered to customer after accounting for returns.
+          This will be compared against expected_quantity from Step 3 in Step 5.

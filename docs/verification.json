@@ -1,0 +1,38 @@
+{
+  "scope": "Synthetic local portfolio demo; not historical production execution",
+  "versions": {
+    "dbt-core": "1.10.15",
+    "dbt-duckdb": "1.9.6",
+    "duckdb": "1.4.4"
+  },
+  "models": 24,
+  "data_tests": 75,
+  "sources": 7,
+  "exposures": 1,
+  "synthetic_seeds": 9,
+  "injected_failures": [
+    {
+      "test": "assert_expected_components",
+      "status": "rejected",
+      "failing_rows": 12
+    },
+    {
+      "test": "assert_monthly_cost_grain",
+      "status": "rejected",
+      "failing_rows": 1
+    }
+  ],
+  "business_examples": "passed",
+  "row_counts": {
+    "int_pnl_order_scope": 22,
+    "int_pnl_expected_components": 21,
+    "int_pnl_actual_components": 22,
+    "int_pnl_cost_ledger": 41,
+    "fct_expected_component_cost": 21,
+    "fct_actual_component_cost": 20,
+    "mart_component_reconciliation": 21,
+    "audit_unmatched_sold_products": 1,
+    "audit_excluded_movements": 9,
+    "audit_multiple_mounting_types": 1
+  }
+}

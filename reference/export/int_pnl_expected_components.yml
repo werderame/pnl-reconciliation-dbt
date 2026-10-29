@@ -1,0 +1,88 @@
+version: 2
+      and products.validity_date >= bom.valid_from_date
+
+models:
+  - name: int_pnl_expected_components
+    meta:
+      owner:
+        name: Filippo Carraro
+        email: portfolio@example.invalid
+      domain: scm
+    description: |
+      Step 3 of P&L reconciliation: Explodes Bill of Materials (BOMs) to component level using mechanism-specific logic.
+
+      Business Logic:
+      - Assigns each product to a BOM explosion mechanism based on product_category
+      - Applies mechanism-specific matching rules for BOM validity and quantity calculation
+      - Filters to finished goods components only (excludes mounting hardware, cables, connectors)
+
+      BOM EXPLOSION MECHANISMS:
+      1. component_passthrough (AC Box, Inverter, Wallbox, Back-up):
+         - Joins BOM for item_ids but uses product quantity 1:1 (no multiplication)
+         - Filters to primary finished goods only (A Components) using product_name pattern matching
+
+      2. quantity_match (PV Module):
+         - Matches total module count to BOM from_quantity threshold (exact match)
+         - Filters to finished goods (product_name ILIKE '%pv%module%') (A Components)
+
+      3. even_quantity_match (Mounting Structure):
+         - Rounds odd quantities to even numbers (business rule)
+         - TRUE BOM explosion using bill_of_material_quantity
+         - Applies product exclusions based on mounting_type priority (horizontal > regular > 3ss > k2)
+         - Filters to primary mounting components only
+
+      4. explosion (Battery):
+         - Multiplies quantity by bill_of_material_quantity for full BOM explosion
+
+      Grain: order_number + product_sku + item_id (one row per BOM component per product per order)
+
+    columns:
+      - name: order_number
+        description: ERP customer order number (from Step 1)
+        data_tests:
+          - not_null
+      - name: opportunity_id
+        description: Salesforce opportunity ID allowing to join the PV Modules Sales with the BOM number of ordered modules
+        data_tests:
+          - not_null
+      - name: product_sku
+        description: |
+          Salesforce product SKU from opportunity line items.
+          The manufactured item that was ordered and that gets exploded into BOM components.
+        data_tests:
+          - not_null
+      - name: product_category
+        description: |
+          Standardized product category from Step 2
+        data_tests:
+          - accepted_values:
+              values: ['AC Box', 'Battery', 'Inverter', 'Mounting Structure', 'PV Module', 'Wallbox', 'Back-up']
+      - name: category_secondary
+        description: |
+          Secondary categorization for Mounting Structures only (NULL for all other categories).
+          Values: 'horizontal', '3ss', 'k2', 'regular'
+          Used for product exclusion logic in even_quantity_match mechanism.
+      - name: validity_date
+        description: |
+          Date used for BOM explosion validity matching.
+          Matches against BOM valid_from_date and valid_to_date ranges.
+          Source from Step 2: installation_start for Mounting Structure, monitoring_closed_date for others.
+        data_tests:
+          - not_null
+      - name: item_id
+        description: |
+          ERP item ID (article number) from BOM explosion.
+          The component/finished good that results from exploding the product_sku.
+          Examples: C_EXAMPLE (AC Box), C_EXAMPLE (PV Module)
+        data_tests:
+          - not_null
+      - name: expected_quantity
+        description: |
+          Expected quantity of the component item_id based on BOM explosion mechanism.
+          Calculation varies by mechanism:
+            - component_passthrough: product quantity (no multiplication)
+            - quantity_match: SUM(bill_of_material_quantity) from BOM
+            - even_quantity_match: bill_of_material_quantity from BOM
+            - explosion: product quantity × bill_of_material_quantity
+        data_tests:
+          - not_null

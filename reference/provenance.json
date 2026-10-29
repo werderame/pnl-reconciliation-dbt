@@ -1,0 +1,72 @@
+[
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_01_customers.sql",
+    "original_sha256": "ffb591cec56aa90e54f3ad36878c539a6f55d7d122b798dc4c537ea17f1e58e1",
+    "reference_file": "reference/export/int_pnl_order_scope.sql",
+    "reference_sha256": "11a0b4b1cdf1bf9638abe6365d65197d17301aa74b6d5895ad1957ddaad686f5",
+    "model_file": "models/intermediate/pnl/int_pnl_order_scope.sql",
+    "model_sha256": "11a0b4b1cdf1bf9638abe6365d65197d17301aa74b6d5895ad1957ddaad686f5"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_02_products.sql",
+    "original_sha256": "30ea73adc8d05ba8614e6515c3e177bc5f6144cc87dd3cf947765185611b6d11",
+    "reference_file": "reference/export/int_pnl_product_rules.sql",
+    "reference_sha256": "a150a103736c6cad0dadd03d76794a827594ce383d46eaf4cc23cb917babd664",
+    "model_file": "models/intermediate/pnl/int_pnl_product_rules.sql",
+    "model_sha256": "733b2c74476957a19db619c7d31ea34060e789f8fc131c84ebdd493c9484682c"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_03_boms.sql",
+    "original_sha256": "24c0091f01b7dca884df633f343bbe4e0d5a8b2c5cd6ec3937818879cf5836d7",
+    "reference_file": "reference/export/int_pnl_expected_components.sql",
+    "reference_sha256": "1eb86f543d44106d37efaeb58e777c56caa0736959e356f6b6eb2e410aef85c0",
+    "model_file": "models/intermediate/pnl/int_pnl_expected_components.sql",
+    "model_sha256": "aba06d00b8be9ee44883cc491c14333ff0afad5f4d9bedf499950ed073c30725"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_04_movements.sql",
+    "original_sha256": "f25e6128d9cbadf1013e6d990aa59ef28e8907721b82baed155169912fcbb994",
+    "reference_file": "reference/export/int_pnl_actual_components.sql",
+    "reference_sha256": "41f351282edcdf88ded18a645eb0ea5f15bc2a7a4de547394a71998597e65e88",
+    "model_file": "models/intermediate/pnl/int_pnl_actual_components.sql",
+    "model_sha256": "41f351282edcdf88ded18a645eb0ea5f15bc2a7a4de547394a71998597e65e88"
+  },
+  {
+    "original_file": "reporting/scm/rep_scm_pnl_reconciliation_05_expected_vs_actuals.sql",
+    "original_sha256": "4889e40406a1b86e2d3b39ec613edfcafb4d52eca339a7da79f8af60446ee23d",
+    "reference_file": "reference/export/int_pnl_cost_ledger.sql",
+    "reference_sha256": "482aedd90b8e0c112b4cdefba72e4bf3ccfacaae34824bb9ca40627eb6b5a81c",
+    "model_file": "models/intermediate/pnl/int_pnl_cost_ledger.sql",
+    "model_sha256": "0aa84e5ff4217b139889e2177dd47a54c9692af723b309416d4a9f3e9973429b"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_01_customers.yml",
+    "original_sha256": "9c3ae395cbd6ae7b4b8bd72e250ae15b2a83080bb857c7297a883dc8f4688ae5",
+    "reference_file": "reference/export/int_pnl_order_scope.yml",
+    "reference_sha256": "7c3e61301f59e31388474d0ce7d52bab1fde255bb5a9590a023e8c9e00f7d9dd"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_02_products.yml",
+    "original_sha256": "c2b6bbdfa67edfbfdc73dba8dafd9a9858c0772406f97d6f58d6aae89d5389e6",
+    "reference_file": "reference/export/int_pnl_product_rules.yml",
+    "reference_sha256": "48c1978d50903d46a056503ff1b1347e7d6cdde39ebf5889ea8f2b0077247c75"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_03_boms.yml",
+    "original_sha256": "86796eb6099b70f33d17d9a4db7607ee3da313958ce2466bfc5afbbe329f43b0",
+    "reference_file": "reference/export/int_pnl_expected_components.yml",
+    "reference_sha256": "aaccd134a531db7d2b999d043e39d0df1a448ee8737f209e3e8470d0bcaf77fd"
+  },
+  {
+    "original_file": "intermediate/scm/int_scm_pnl_reconciliation_04_movements.yml",
+    "original_sha256": "7b7cc55f463ac7581b6b03a1adea740d4b7e4b62c3eb92cfd31b5e5fc0e262ee",
+    "reference_file": "reference/export/int_pnl_actual_components.yml",
+    "reference_sha256": "7c8e134c2c886fdc5b335b5129f6856f30a160c714b05a4355c9bcaea8d1c38e"
+  },
+  {
+    "original_file": "reporting/scm/rep_scm_pnl_reconciliation_05_expected_vs_actuals.yml",
+    "original_sha256": "46f90acc67ad1183c7241bf494f9da6be19be1807354f0bb57a86adc8331503c",
+    "reference_file": "reference/export/int_pnl_cost_ledger.yml",
+    "reference_sha256": "bfac6d740922b5c949a08421d6c908a29de038383aa24a30d9efed1b973d1df0"
+  }
+]

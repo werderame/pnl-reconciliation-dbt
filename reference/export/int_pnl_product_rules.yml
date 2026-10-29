@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: int_pnl_product_rules
+    meta:
+      owner:
+        name: Filippo Carraro
+        email: portfolio@example.invalid
+      domain: scm
+    description: |
+      Step 2 of P&L reconciliation: Categorizes and enriches products for reconciliation scope.
+
+      Business Logic:
+      - Filters products to reconciliation scope (AC Box, Battery, Inverter, Mounting Structure, PV Module, Wallbox, Back-up)
+      - Maps Salesforce opportunity_product_type to better readable product_category
+      - Applies secondary categorization for Mounting Structures to slice PV customers roofs (horizontal, 3ss, k2, regular)
+      - Determines validity_date for BOM explosion (installation_start for MS, monitoring_closed_date for others)
+
+      DATA QUALITY HANDLING:
+      Mounting Structure Priority Logic - Orders sometimes contain ALL mounting types (SYN_H42 + SYN_H180 + SYN_H43 + regular),
+      because a customer may install both horizontal and angled PV modules. In order to classify the
+      mounting structure type, we use a priority-based logic based on Sales Volume.
+
+      Grain: order_number + product_sku (one row per product per order)
+
+      This model does not require any primary key because it directly depends on the model rep_scm_pnl_reconciliation_01_customers
+      which has a primary key on order_number + opportunity_id + product_sku.
+
+    columns:
+      - name: order_number
+        description: ERP customer order number (reconciliation grain)
+        data_tests:
+          - not_null
+      - name: opportunity_id
+        description: Salesforce opportunity ID linking order to original deal
+        data_tests:
+          - not_null
+      - name: product_sku
+        description: Salesforce product SKU from opportunity line items
+        data_tests:
+          - not_null
+      - name: product_category
+        description: |
+          Standardized product category derived from opportunity_product_type.
+          Values: 'AC Box', 'Battery', 'Inverter', 'Mounting Structure', 'PV Module', 'Wallbox', 'Back-up'
+          Only in-scope products are included (WHERE product_category IS NOT NULL).
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['AC Box', 'Battery', 'Inverter', 'Mounting Structure', 'PV Module', 'Wallbox', 'Back-up']
+      - name: category_secondary
+        description: |
+          Secondary categorization for Mounting Structures only (NULL for all other categories).
+          Uses priority-based logic to determine mounting type: 'horizontal', '3ss', 'k2', or 'regular'.
+      - name: quantity
+        description: |
+          Quantity of product ordered from Step 1.
+          Aggregated at order_number + product_sku level.
+      - name: monitoring_closed_date
+        description: |
+          Date when customer went live (from Step 1).
+          Used as validity_date for most products (except Mounting Structures).
+      - name: validity_date
+        description: |
+          Date used for BOM explosion validity matching in subsequent steps.
+          Logic by product category:
+            - Mounting Structure: installation_start_timestamp_cet from stg_fulfilment_cases
+            - All others: monitoring_closed_date
+        data_tests:
+          - not_null

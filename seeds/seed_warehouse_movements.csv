@@ -1,0 +1,31 @@
+movement_id,helper_type,movement_date,installation_on_date,erp_from_warehouse,erp_transfer_order_type,transfer_order_status,erp_order_number,item_id,procurement_category,transfer_quantity,shipped_quantity,interface_quantity
+M0001,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_EQUAL,C_AC,AC Box,2,99,999
+M0002,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_RETURN,C_BAT_CELL,Battery,8,,999
+M0003,Return Inbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_RETURN,C_BAT_CELL,Battery,2,,999
+M0004,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_RETURN,C_BAT_CABLE,Battery,4,,999
+M0005,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_SHORT,C_PV,PV Module,,2,999
+M0006,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_EXTRA,C_INV,Inverter,2,,999
+M0007,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_SHARED,C_SHARED,Inverter,3,,999
+M0008,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_MOUNT,C_HOOK,Mounting Structure,7,,999
+M0009,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_MOUNT,C_RAIL,Mounting Structure,4,,999
+M0010,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_MOUNT,C_CAP,Mounting Structure,6,,999
+M0011,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_MOUNT,C_MECH,Mounting Structure,2,,999
+M0012,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_MOUNT,C_INV,Inverter,1,,999
+M0013,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_MISSING,C_CHARGER,Charger,1,,999
+M0014,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_ZERO,C_ZERO,AC Box,1,,999
+M0015,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_UNEXPECTED,C_AC,AC Box,1,,999
+M0016,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_UNEXPECTED,C_INV,Inverter,1,,999
+M0017,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_UNEXPECTED,C_UNSEEN,Inverter,99,,999
+M0018,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_NO_BOM,C_AC,AC Box,1,,999
+M0019,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_FLAG_FALSE,C_AC,AC Box,1,,999
+M0020,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_DELETED,C_AC,AC Box,9,,999
+M0021,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,DEMO_DUMMY,C_AC,AC Box,9,,999
+M0022,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_NO_DATE,C_AC,AC Box,9,,999
+M0023,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_OLD,C_AC,AC Box,9,,999
+M0024,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_SERVICE,C_AC,AC Box,9,,999
+M0025,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_RECENT,C_INV,Inverter,1,,999
+M0026,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_BOUND_OLD,C_BOUND_OLD,AC Box,1,,999
+M0027,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_BOUND_NEW,C_BOUND_NEW,AC Box,1,,999
+M0028,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Sales,Shipped,O_ZERO_TRANSFER,C_BACKUP,Backup Switch,0,2,999
+M0029,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,Retro Install,Shipped,O_EQUAL,C_AC,AC Box,100,,999
+M0030,Outbound,2025-06-10,2025-04-10,DEMO_DC_1,,Shipped,O_EQUAL,C_AC,AC Box,100,,999

@@ -1,0 +1,20 @@
+item_id,product_name,manufactured_item_number,bill_of_material_quantity,from_quantity,valid_from_date,valid_to_date
+C_AC,AC Box Primary,SYN_AC,7,0,2024-01-01,1900-01-01
+C_ACCESSORY,Cable accessory,SYN_AC,10,0,2024-01-01,1900-01-01
+C_BAT_CELL,Battery cell,SYN_BAT,3,0,2024-01-01,1900-01-01
+C_BAT_CABLE,Battery cable,SYN_BAT,2,0,2024-01-01,1900-01-01
+C_PV,PV Module standard,SYN_PV,3,3,2024-01-01,1900-01-01
+C_PV_OTHER,PV Module different threshold,SYN_PV,4,4,2024-01-01,1900-01-01
+C_INV,Hybrid inverter,SYN_INV,12,0,2024-01-01,1900-01-01
+C_SHARED,Shared inverter,SYN_INV_A,5,0,2024-01-01,1900-01-01
+C_SHARED,Shared inverter,SYN_INV_B,9,0,2024-01-01,1900-01-01
+C_HOOK,Hook set standard,SYN_BASE,8,4,2024-01-01,2025-04-30
+C_RAIL,Connecting rail horizontal,SYN_H42,4,4,2024-01-01,2025-04-30
+C_CAP,End caps premium,SYN_H180,6,4,2024-01-01,2025-04-30
+C_MECH,Mechanical parts set special,SYN_H43,2,4,2024-01-01,2025-04-30
+C_CHARGER,Home Charger,SYN_WALL,4,0,2024-01-01,1900-01-01
+C_PLATE,Charger Mounting Plate,SYN_WALL,1,0,2024-01-01,1900-01-01
+C_ZERO,AC Box zero-cost demonstration,SYN_ZERO,5,0,2024-01-01,1900-01-01
+C_BOUND_OLD,AC Box previous version,SYN_BOUND,1,0,2024-01-01,2025-05-15
+C_BOUND_NEW,AC Box new version,SYN_BOUND,1,0,2025-05-16,1900-01-01
+C_BACKUP,Home back-up switch,SYN_BACKUP,7,0,2024-01-01,1900-01-01

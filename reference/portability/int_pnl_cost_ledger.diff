@@ -1,0 +1,21 @@
+--- reference/export/int_pnl_cost_ledger.sql
++++ models/intermediate/pnl/int_pnl_cost_ledger.sql
+@@ -50,8 +50,8 @@
+ 
+   SELECT
+     all_rows.*
+-    , COALESCE(MAX(TO_CHAR(bom.validity_date, 'YYYY-MM')), '1900-01') AS year_month
+-    , COALESCE(MAX(TO_CHAR(bom.validity_date, 'YYYY-') || LPAD(TO_CHAR(EXTRACT(WEEK FROM bom.validity_date)), 2, '0')), '1900-01') AS week_number
++    , COALESCE(MAX(pnl_to_char(bom.validity_date, 'YYYY-MM')), '1900-01') AS year_month
++    , COALESCE(MAX(pnl_to_char(bom.validity_date, 'YYYY-') || LPAD(pnl_to_char(EXTRACT(WEEK FROM bom.validity_date)), 2, '0')), '1900-01') AS week_number
+ 
+   FROM expected_and_actual AS all_rows
+     INNER JOIN int_pnl_expected_components AS bom
+@@ -95,7 +95,7 @@
+       ON
+         dated_rows.order_number = status.order_number
+         AND dated_rows.product_category = status.product_category
+-  GROUP BY ALL
++  GROUP BY dated_rows.side_type, dated_rows.order_number, dated_rows.product_sku, dated_rows.product_category, dated_rows.category_secondary, dated_rows.item_id, dated_rows.expected_quantity, dated_rows.outbound_transfer_quantity, dated_rows.inbound_transfer_quantity, dated_rows.net_transfer_quantity, dated_rows.year_month, dated_rows.week_number, status.status_map
+ 
+ )

@@ -1,0 +1,106 @@
+version: 2
+
+models:
+  - name: int_pnl_cost_ledger
+    meta:
+      owner:
+        name: Filippo Carraro
+        email: portfolio@example.invalid
+      domain: scm
+    description: |
+      Step 5 and last of P&L reconciliation: Compares expected quantities (from BOM explosion) vs actual quantities (from warehouse movements) and calculates P&L impact.
+
+      Business Logic:
+      - UNIONs expected quantities (Step 3) with actual quantities (Step 4) at order + item_id level
+      - Derives year_month from validity_date for WAC matching
+      - Joins with weighted average cost (WAC) data to calculate costs
+      - Calculates P&L = expected_cost - actual_cost
+
+      Cost Calculation:
+      - expected_cost = expected_quantity × WAC (what we should have shipped based on BOM)
+      - actual_cost = net_transfer_quantity × WAC (what we actually shipped)
+      - pnl = expected_cost - actual_cost (positive = we shipped less than expected, negative = we shipped more)
+
+      Grain: order_number + product_sku + product_category + item_id (one row per component per product per order)
+
+    columns:
+      - name: side_type
+        description: |
+          Side of the reconciliation: 'expected' or 'actual'.
+          'expected' for BOM explosion (Step 3), 'actual' for warehouse movements (Step 4).
+      - name: order_number
+        description: ERP customer order number (from Step 1)
+        data_tests:
+          - not_null
+      - name: product_sku
+        description: |
+          Salesforce product SKU from Step 3 (expected side).
+          NULL for rows from Step 4 (actual side only).
+      - name: product_category
+        description: |
+          Product category from Step 3 (expected) or procurement_category from Step 4 (actual).
+          Values: 'AC Box', 'Battery', 'Inverter', 'Mounting Structure', 'PV Module', 'Wallbox', 'Back-up'
+      - name: category_secondary
+        description: |
+          Secondary categorization for Mounting Structures from Step 3.
+          NULL for actual-only rows and non-Mounting Structure products.
+      - name: item_id
+        description: |
+          ERP item ID (article number) - the component being reconciled.
+          Common key between expected (Step 3) and actual (Step 4).
+        data_tests:
+          - not_null
+      - name: expected_quantity
+        description: |
+          Expected quantity from BOM explosion (Step 3).
+          Zero for actual-only rows (movements without matching BOM).
+      - name: outbound_transfer_quantity
+        description: |
+          Actual outbound quantity from warehouse movements (Step 4).
+          Zero for expected-only rows (BOM without matching movements).
+      - name: inbound_transfer_quantity
+        description: |
+          Actual inbound (return) quantity from warehouse movements (Step 4).
+          Zero for expected-only rows.
+      - name: net_transfer_quantity
+        description: |
+          Net actual quantity = outbound - inbound (Step 4).
+          Zero for expected-only rows.
+      - name: status_map
+        description: |
+          Status of the reconciliation: 'equal', 'undership', 'overship'.
+          'equal' if the expected quantity is equal to the actual quantity.
+          'undership' if the expected quantity is less than the actual quantity.
+          'overship' if the expected quantity is greater than the actual quantity.
+      - name: year_month
+        description: |
+          Year-month in 'YYYY-MM' format derived from validity_date (Step 3).
+          Used for matching with WAC data by time period.
+          Defaults to '1900-01' if no validity_date available.
+        data_tests:
+          - not_null
+      - name: week_number
+        description: |
+          Week number in 'YYYY-WW' format derived from validity_date (Step 3).
+          Used for matching with WAC data by time period.
+          Defaults to '1900-01' if no validity_date available.
+        data_tests:
+          - not_null
+      - name: match_wac_eur
+        description: |
+          Weighted average cost in EUR for the item_id in the given year_month.
+          Sourced from stg_monthly_unit_costs.
+          Zero if no WAC available for the item/period.
+      - name: expected_cost
+        description: |
+          Expected cost = expected_quantity × match_wac_eur.
+          Represents the cost we should have incurred based on BOM.
+      - name: actual_cost
+        description: |
+          Actual cost = net_transfer_quantity × match_wac_eur.
+          Represents the cost we actually incurred based on movements.
+      - name: pnl
+        description: |
+          P&L impact = expected_cost - actual_cost.
+          Positive value: We shipped less than expected (favorable variance)
+          Negative value: We shipped more than expected (unfavorable variance)

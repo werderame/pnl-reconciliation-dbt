@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: int_pnl_order_scope
+    meta:
+      owner:
+        name: Filippo Carraro
+        email: portfolio@example.invalid
+      domain: scm
+    description: |
+      Step 1 of P&L reconciliation: Identifies all in-revenue customers with their order details and products.
+
+      Business Logic:
+      - Uses monitoring_closed_date (when customer went live) as the revenue discriminator
+      - Filters to customers with monitoring_closed_date IS NOT NULL
+      - Only includes orders from 2024 onwards (YEAR >= 2024)
+      - Takes latest case per opportunity for most recent monitoring date
+      - Shows last promised product per opportunity + product type combination
+
+      Grain: order_number + product_sku (one row per product per order)
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            [order_number, opportunity_id, product_sku, opportunity_product_type]
+    columns:
+      - name: order_number
+        description: ERP customer order number (reconciliation grain)
+        data_tests:
+          - not_null
+      - name: opportunity_id
+        description: Salesforce opportunity ID linking order to original deal
+        data_tests:
+          - not_null
+      - name: monitoring_closed_date
+        description: |
+          Date when customer went live (system setup completed and customer started paying).
+          Derived from setup_monitoring_closed_timestamp_cet in stg_fulfilment_cases.
+          Used as revenue discriminator - only non-null values are included.
+        data_tests:
+          - not_null
+      - name: product_sku
+        description: Salesforce product SKU from opportunity line items
+        data_tests:
+          - not_null
+      - name: opportunity_product_type
+        description: |
+          Product type classification from Salesforce (e.g., 'PV Module', 'Inverter', 'AC Box', 'Substructure').
+          Used in Step 2 for product category filtering.
+      - name: quantity
+        description: |
+          Aggregated quantity of product ordered.
+          Sum of quantities when multiple line items exist for same order + product SKU combination.
+      - name: created_timestamp_cet
+        description: |
+          Timestamp when the product line item was created in Salesforce.
+          Used for deduplication via DENSE_RANK to get latest promised product.

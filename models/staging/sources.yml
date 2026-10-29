@@ -1,0 +1,107 @@
+version: 2
+sources:
+- name: demo_inputs
+  schema: main
+  description: Seven synthetic seed-backed interfaces. These are reconstructed boundary contracts, not the missing
+    production source models.
+  tables:
+  - name: sales_product_lines
+    identifier: seed_sales_product_lines
+    columns:
+    - name: opportunity_id
+      description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+    - name: product_sku
+      description: Sold manufactured-product identifier; not a physical warehouse component. Absent on actual ledger
+        rows.
+    - name: opportunity_product_type
+      description: Commercial product-type text used for category mapping and latest-line partitioning.
+    - name: quantity
+      description: Sold product quantity before category-specific BOM conversion; never a universal component multiplier.
+    - name: created_timestamp_cet
+      description: Promised-line timestamp. DENSE_RANK keeps equally latest rows per opportunity and product type.
+  - name: customer_orders
+    identifier: seed_customer_orders
+    columns:
+    - name: order_number
+      description: Natural ERP order identifier. Synthetic in this public demo.
+    - name: opportunity_id
+      description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+    - name: is_customer_in_revenue
+      description: Loaded interface flag; deliberately not an eligibility predicate in the exported calculation.
+    - name: opportunity_stage
+      description: Loaded commercial stage; deliberately not an eligibility predicate in the exported calculation.
+  - name: opportunities
+    identifier: seed_opportunities
+    columns:
+    - name: opportunity_id
+      description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+    - name: modules
+      description: Opportunity-level module count used to match the PV BOM quantity threshold.
+    - name: is_deleted
+      description: Source deletion flag; deleted opportunities are excluded from order scope.
+  - name: fulfilment_cases
+    identifier: seed_fulfilment_cases
+    columns:
+    - name: opportunity_id
+      description: Commercial opportunity identity linking the order, sold lines and fulfilment cases.
+    - name: setup_monitoring_closed_timestamp_cet
+      description: Monitoring case close timestamp; latest qualifying case from 2024 onward determines scope.
+    - name: installation_start_timestamp_cet
+      description: Installation case timestamp used for mounting BOM selection.
+  - name: bom_lines
+    identifier: seed_bom_lines
+    columns:
+    - name: item_id
+      description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+    - name: product_name
+      description: BOM component name used by the exported primary-component and mounting filters.
+    - name: manufactured_item_number
+      description: Manufactured product whose BOM contains this physical component.
+    - name: bill_of_material_quantity
+      description: BOM component coefficient. Used directly, multiplied, or ignored according to the selected mechanism.
+    - name: from_quantity
+      description: 'BOM quantity threshold: exact module count for PV, upward-even matching for mounting.'
+    - name: valid_from_date
+      description: Inclusive BOM version start date.
+    - name: valid_to_date
+      description: Inclusive BOM version end date; 1900-01-01 is the source open-ended sentinel.
+  - name: warehouse_movements
+    identifier: seed_warehouse_movements
+    columns:
+    - name: movement_id
+      description: Synthetic audit identifier added to reconstruct row-level exclusion explanations.
+    - name: helper_type
+      description: Movement direction label. Return Inbound is subtracted; other non-null labels are outbound.
+    - name: movement_date
+      description: Movement date retained for traceability; not the valuation-month selector in this calculation.
+    - name: installation_on_date
+      description: Warehouse interface date retained for traceability; not substituted for BOM selection dates.
+    - name: erp_from_warehouse
+      description: Warehouse interface attribute, not a filter in these five models.
+    - name: erp_transfer_order_type
+      description: Transfer type. Case-sensitive Retro matches and null types are excluded by the exported predicate.
+    - name: transfer_order_status
+      description: Interface attribute retained for inspection; no additional status filter is invented.
+    - name: erp_order_number
+      description: Warehouse-side ERP order identifier used to link movements to eligible orders.
+    - name: item_id
+      description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+    - name: procurement_category
+      description: Warehouse category, with Charger mapped to Wallbox and Backup Switch mapped to Back-up in the
+        calculation.
+    - name: transfer_quantity
+      description: Finance-preferred quantity. A non-null zero takes precedence over shipped quantity.
+    - name: shipped_quantity
+      description: Fallback quantity used only when transfer_quantity is null.
+    - name: interface_quantity
+      description: Synthetic contrast field demonstrating that the exported quantity rule does not consult it.
+  - name: monthly_unit_costs
+    identifier: seed_monthly_unit_costs
+    columns:
+    - name: item_id
+      description: Physical component identifier shared by BOM lines, warehouse movements and monthly WAC.
+    - name: year_month
+      description: YYYY-MM valuation period. In the ledger and marts it is the maximum expected-BOM month over the
+        whole order.
+    - name: wac_eur
+      description: Source monthly weighted-average unit cost in EUR; uniqueness is required at item/month grain.

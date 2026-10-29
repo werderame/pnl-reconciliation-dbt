@@ -1,0 +1,22 @@
+order_number,opportunity_id,is_customer_in_revenue,opportunity_stage
+O_EQUAL,OP_O_EQUAL,True,Closed Won
+O_RETURN,OP_O_RETURN,True,Closed Won
+O_SHORT,OP_O_SHORT,True,Closed Won
+O_EXTRA,OP_O_EXTRA,True,Closed Won
+O_SHARED,OP_O_SHARED,True,Closed Won
+O_MOUNT,OP_O_MOUNT,True,Closed Won
+O_MISSING,OP_O_MISSING,True,Closed Won
+O_ZERO,OP_O_ZERO,True,Closed Won
+O_UNEXPECTED,OP_O_UNEXPECTED,True,Closed Won
+O_EXPECTED_ONLY,OP_O_EXPECTED_ONLY,True,Closed Won
+O_NO_BOM,OP_O_NO_BOM,True,Closed Won
+O_FLAG_FALSE,OP_O_FLAG_FALSE,False,Closed Won
+O_DELETED,OP_O_DELETED,True,Closed Won
+DEMO_DUMMY,OP_DEMO_DUMMY,True,Closed Won
+O_NO_DATE,OP_O_NO_DATE,True,Closed Won
+O_OLD,OP_O_OLD,True,Closed Won
+O_SERVICE,OP_O_SERVICE,True,Closed Won
+O_RECENT,OP_O_RECENT,True,Closed Won
+O_BOUND_OLD,OP_O_BOUND_OLD,True,Closed Won
+O_BOUND_NEW,OP_O_BOUND_NEW,True,Closed Won
+O_ZERO_TRANSFER,OP_O_ZERO_TRANSFER,True,Closed Won

@@ -1,0 +1,4 @@
+dbt-core==1.10.15
+dbt-duckdb==1.9.6
+duckdb==1.4.4
+PyYAML==6.0.3

@@ -1,0 +1,8 @@
+pnl_reconciliation:
+  target: demo
+  outputs:
+    demo:
+      type: duckdb
+      path: '{{ env_var(''PNL_DEMO_DB'', ''pnl_demo.duckdb'') }}'
+      schema: main
+      threads: 1

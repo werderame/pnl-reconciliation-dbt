@@ -1,0 +1,28 @@
+--- reference/export/int_pnl_product_rules.sql
++++ models/intermediate/pnl/int_pnl_product_rules.sql
+@@ -1,7 +1,7 @@
+ {{
+   config(
+     materialized = 'view',
+-    tags = 'daily''view'
++    tags = ['daily', 'view']
+   )
+ }}
+ 
+@@ -63,7 +63,7 @@
+     , quantity
+     , monitoring_closed_date
+   FROM customer_products_filtered
+-  GROUP BY ALL
++  GROUP BY order_number, opportunity_id, product_sku, product_category, quantity, monitoring_closed_date
+ )
+ 
+ , final AS (
+@@ -80,7 +80,7 @@
+     LEFT JOIN stg_fulfilment_cases AS cases
+       ON customers.opportunity_id = cases.opportunity_id
+ 
+-  GROUP BY ALL
++  GROUP BY customers.order_number, customers.opportunity_id, customers.product_sku, customers.product_category, customers.category_secondary, customers.quantity, customers.monitoring_closed_date
+ 
+   HAVING validity_date IS NOT NULL
